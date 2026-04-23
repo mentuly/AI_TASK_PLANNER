@@ -1,0 +1,12 @@
+/.env
+/.venv
+/me_bot.txt
+/tree.txt
+__pycache__/
+/__pycache__/
+*.db
+
+.env
+.venv
+__pycache__/
+*.db

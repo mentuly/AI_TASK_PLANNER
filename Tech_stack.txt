@@ -1,0 +1,13 @@
+Tech stack
+Bot framework
+python-telegram-bot
+AI API
+OpenAI / Claude API
+Web backend
+FastAPI (he knows it)
+Database
+SQLite + SQLAlchemy
+Frontend
+HTML + CSS + JS
+Async
+asynciol
