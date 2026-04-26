@@ -1,32 +1,22 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, types
+
+from aiogram import Dispatcher, types, F
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram import F
-
-from db import *
-from ai import generate_plan
-
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReactionTypeEmoji
 from aiogram.fsm.context import FSMContext
 
-from aiogram.types import ( 
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-    Message,
-    ReactionTypeEmoji
-)
+from core.repository import *
+from ai.generate import generate_plan
+from bot.states import PlanState
+from core.users import register_user
 
-class PlanState(StatesGroup):
-    waiting_for_task = State()
+dp = Dispatcher()
 
-async def send_typing(chat_id: int):
+logging.basicConfig(level=logging.INFO)
+
+
+async def send_typing(bot, chat_id: int):
     try:
         while True:
             await bot.send_chat_action(chat_id, "typing")
@@ -34,31 +24,33 @@ async def send_typing(chat_id: int):
     except asyncio.CancelledError:
         pass
 
-
-logging.basicConfig(level=logging.INFO)
-
-bot = Bot(token=os.getenv("BOT_TOKEN"))
-dp = Dispatcher()
-
-
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.react([ReactionTypeEmoji(emoji = "❤")])
+    username = message.from_user.username or "no_username"
+
+    await register_user(
+        message.from_user.id,
+        username
+    )
+
+    await message.react([ReactionTypeEmoji(emoji="❤")])
+
     await message.answer(
         "👋 Привіт! Я AI Task Planner\n\n"
         "Команди:\n"
-        "/plan \n"
+        "/plan\n"
         "/mytasks\n"
     )
-
 @dp.message(Command("plan"))
 async def plan(message: types.Message, state: FSMContext):
-    await message.react([ReactionTypeEmoji(emoji = "❤")])
+    await message.react([ReactionTypeEmoji(emoji="❤")])
     await state.set_state(PlanState.waiting_for_task)
     await message.answer("📝 Напиши задачу:")
 
+
 @dp.message(PlanState.waiting_for_task)
 async def process_task(message: types.Message, state: FSMContext):
+    bot = message.bot
     task_text = message.text.strip()
 
     if not task_text:
@@ -67,7 +59,7 @@ async def process_task(message: types.Message, state: FSMContext):
 
     await message.answer("🤖 Думаю...")
 
-    typing_task = asyncio.create_task(send_typing(message.chat.id))
+    typing_task = asyncio.create_task(send_typing(bot, message.chat.id))
 
     try:
         steps = await generate_plan(task_text)
@@ -81,7 +73,7 @@ async def process_task(message: types.Message, state: FSMContext):
 
     task_id = await create_task(message.from_user.id, task_text, steps)
 
-    text = f"📌 Задача (ID {task_id}): {task_text}\n\n"
+    text = f"📌 Задача: {task_text}\n\n"
 
     total = 0
     for i, step in enumerate(steps, 1):
@@ -94,12 +86,11 @@ async def process_task(message: types.Message, state: FSMContext):
     text += f"\n⏱ Загальний час: {total} хв"
 
     await message.answer(text)
-
     await state.clear()
 
 @dp.message(Command("mytasks"))
 async def mytasks(message: types.Message):
-    await message.react([ReactionTypeEmoji(emoji = "❤")])
+    await message.react([ReactionTypeEmoji(emoji="❤")])
     tasks = await get_tasks(message.from_user.id)
 
     if not tasks:
@@ -120,9 +111,7 @@ async def mytasks(message: types.Message):
             )
         ])
 
-    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-    await message.answer(text, reply_markup=markup)
+    await message.answer(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
 
 @dp.callback_query(F.data.startswith("task:"))
 async def open_task(callback: types.CallbackQuery):
@@ -134,26 +123,20 @@ async def open_task(callback: types.CallbackQuery):
         return
 
     task_id, title, is_done = tasks[index - 1]
-
-    status = "✅" if is_done else "⏳"
-
     steps = await get_steps(task_id)
 
+    status = "✅" if is_done else "⏳"
     text = f"📌 Завдання {index}:\n{title}\n\nСтатус: {status}\n\n"
 
     if steps:
         text += "🧠 План:\n"
         total = 0
 
-        for i, step in enumerate(steps, 1):
-            step_title, step_description, step_minutes = step
-
-            text += f"{i}. {step_title} ({step_minutes} хв)\n"
-
-            if step_description:
-                text += f"   └ {step_description}\n"
-
-            total += step_minutes
+        for i, (t, d, m) in enumerate(steps, 1):
+            text += f"{i}. {t} ({m} хв)\n"
+            if d:
+                text += f"   └ {d}\n"
+            total += m
 
         text += f"\n⏱ Загальний час: {total} хв"
     else:
@@ -162,41 +145,17 @@ async def open_task(callback: types.CallbackQuery):
     buttons = []
 
     if not is_done:
-        buttons.append(
-            InlineKeyboardButton(
-                text="✅ Виконати",
-                callback_data=f"done:{index}"
-            )
-        )
+        buttons.append(InlineKeyboardButton(text="✅ Виконати", callback_data=f"done:{index}"))
 
-    buttons.append(
-        InlineKeyboardButton(
-            text="🗑 Видалити",
-            callback_data=f"delete:{index}"
-        )
-    )
+    buttons.append(InlineKeyboardButton(text="🗑 Видалити", callback_data=f"delete:{index}"))
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         buttons,
-        [
-            InlineKeyboardButton(
-                text="⬅️ Назад",
-                callback_data="back_to_tasks"
-            )
-        ]
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_tasks")]
     ])
 
-    await callback.message.delete()
-    await callback.message.answer(text, reply_markup=keyboard)
-
-# @dp.message(Command("done"))
-# async def done(message: types.Message):
-#     try:
-#         task_id = int(message.text.split()[1])
-#         await mark_done(task_id)
-#         await message.answer("✅ Задача виконана")
-#     except:
-#         await message.answer("❌ Використання: /done <id>")
+    await callback.answer()
+    await callback.message.edit_text(text, reply_markup=keyboard)
 
 @dp.callback_query(F.data.startswith("done:"))
 async def done_callback(callback: types.CallbackQuery):
@@ -215,21 +174,8 @@ async def done_callback(callback: types.CallbackQuery):
 
     await mark_done(task_id)
 
-    await callback.answer("✅ Завдання виконано")
-
     await callback.answer("✅ Виконано")
-    await callback.message.edit_text(
-        callback.message.text + "\n\n✅ Завершено"
-    )
-
-# @dp.message(Command("delete"))
-# async def delete(message: types.Message):
-#     try:
-#         task_id = int(message.text.split()[1])
-#         await delete_task(task_id)
-#         await message.answer("🗑 Задача видалена")
-#     except:
-#         await message.answer("❌ Використання: /delete <id>")
+    await callback.message.edit_text(callback.message.text + "\n\n✅ Завершено")
 
 @dp.callback_query(F.data.startswith("delete:"))
 async def delete_callback(callback: types.CallbackQuery):
@@ -244,8 +190,6 @@ async def delete_callback(callback: types.CallbackQuery):
 
     await delete_task(task_id)
 
-    await callback.answer("🗑 Завдання видалено")
-
     await callback.answer("🗑 Видалено")
     await callback.message.edit_text("🗑 Задача видалена")
 
@@ -253,7 +197,7 @@ async def delete_callback(callback: types.CallbackQuery):
 async def back_to_tasks(callback: types.CallbackQuery):
     tasks = await get_tasks(callback.from_user.id)
 
-    await callback.answer("⬅️ Назад")
+    await callback.answer()
 
     if not tasks:
         await callback.message.edit_text("📭 У тебе немає задач")
@@ -262,43 +206,12 @@ async def back_to_tasks(callback: types.CallbackQuery):
     text = "📋 Ось твої завдання:\n\n"
     keyboard = []
 
-    for index, (task_id, title, is_done) in enumerate(tasks, start=1):
+    for index, (_, title, is_done) in enumerate(tasks, start=1):
         status = "✅" if is_done else "⏳"
         text += f"{index}. {title} {status}\n"
 
         keyboard.append([
-            InlineKeyboardButton(
-                text=f"📌 {index}",
-                callback_data=f"task:{index}"
-            )
+            InlineKeyboardButton(text=f"📌 {index}", callback_data=f"task:{index}")
         ])
 
-    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-    await callback.message.edit_text(text, reply_markup=markup)
-
-# або можна написати так:
-# @dp.callback_query(F.data.startswith("btn_click"))
-# async def button_handler(callback: CallbackQuery):
-#     action = callback.data.split(":")[1]
-
-#     if action == "done":
-#         await callback.answer("✅ Завдання виконано")
-
-#     elif action == "delete":
-#         await callback.answer("🗑 Видалено")
-
-#     elif action == "back":
-#         await callback.answer("⬅️ Назад")
-
-# callback_data="btn_click:done"
-# callback_data="btn_click:delete"
-# callback_data="btn_click:back"
-
-async def main():
-    await init_db()
-    await dp.start_polling(bot)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    await callback.message.edit_text(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
