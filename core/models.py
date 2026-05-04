@@ -12,6 +12,13 @@ async def init_db():
     """)
 
     await db.execute("""
+    CREATE TABLE IF NOT EXISTS auth_tokens (
+        token TEXT PRIMARY KEY,
+        user_id INTEGER
+    )
+    """)
+
+    await db.execute("""
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Головна — AI Task Planner{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <span class="eyebrow">Веб-платформа преміум рівня</span>
+        <h1 class="text-accent">Плануй кожен день як важливу місію</h1>
+        <p>
+            Авторизація відбувається через команду <code>/site</code> у Telegram-боті. Після входу ти отримаєш доступ до свого персонального дашборду задач.
+        </p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="/login">Увійти</a>
+            <a class="button button-secondary" href="https://t.me/AI_task_planer_bot" target="_blank">Відкрити бота</a>
+        </div>
+        {% if user_id %}
+        <div class="alert" style="margin-top:24px;">
+            Ви вже авторизовані. <a href="/dashboard">Перейти в дашборд</a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="hero-panel">
+        <div class="card-edge">
+            <div class="card-yellow">
+                <h3 class="text-accent">Продуктивність у фокусі</h3>
+                <p>Сайт виглядає як важливий дашборд, де всі задачі сформовані в інтелектуальний план.</p>
+            </div>
+            <div class="card-yellow">
+                <h3 class="text-accent">Вхід через Telegram</h3>
+                <p>Без паролів. Використовуй команду <strong>/site</strong> у боті, щоб відкрити доступ.</p>
+            </div>
+        </div>
+        <div class="card-yellow">
+            <h3 class="text-accent">Контроль в одному місці</h3>
+            <p>Створюй, переглядай та відмічай кроки задач у своєму дашборді з комфортною візуальною панеллю.</p>
+        </div>
+    </div>
+</section>
+
+<section class="feature-grid">
+    <div class="card-yellow">
+        <h3 class="text-accent">Профіль</h3>
+        <p>Налаштуй ім’я та аватар у розділі «Налаштування» для більш персоналізованого інтерфейсу.</p>
+    </div>
+    <div class="card-yellow">
+        <h3 class="text-accent">Графіка для очей</h3>
+        <p>З приємним темним фоном і м’якими відтінками, сайт виглядає професійно і сучасно.</p>
+    </div>
+    <div class="card-yellow">
+        <h3 class="text-accent">Швидкий старт</h3>
+        <p>Плануй задачу в Telegram, заходь на сайт і отримуй миттєву віддачу від свого робочого процесу.</p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Task Planner{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body data-page="{{ page }}">
+<header class="site-header">
+    <div>
+        <a class="brand-link" href="/">Task Planner</a>
+        <span class="brand-subtitle">Плануй сьогодні — досягай завтра</span>
+    </div>
+    <nav class="site-nav">
+        <a class="button button-secondary"  href="/">Головна</a>
+        <a class="button button-secondary"  href="/dashboard">Дашборд</a>
+        <a class="button button-secondary" href="/settings">Налаштування</a>
+    </nav>
+</header>
+<main class="page-shell">
+    {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+    <span><b>AI Task Planner</b></span>
+</footer>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

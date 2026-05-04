@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Task Planner</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f0f1a;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .task {
+            background: #1c1c2e;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .task:hover {
+            background: #252540;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .steps {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .step {
+            background: #2a2a45;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 5px 0;
+        }
+
+        .progress {
+            height: 8px;
+            background: #333;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #00ff99;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: #00c853;
+            color: white;
+        }
+
+        .error {
+            text-align: center;
+            margin-top: 100px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🧠 AI Task Planner</h1>
+
+    <div id="tasks"></div>
+</div>
+
+<script>
+async function loadTasks() {
+    const res = await fetch("/tasks");
+
+    if (res.status === 401) {
+        document.getElementById("tasks").innerHTML =
+            "<div class='error'>❌ Ти не авторизований<br>Зайди через Telegram</div>";
+        return;
+    }
+
+    const data = await res.json();
+
+    const container = document.getElementById("tasks");
+    container.innerHTML = "";
+
+    data.forEach(task => {
+        const div = document.createElement("div");
+        div.className = "task";
+
+        const percent = task.is_done ? 100 : 0;
+
+        div.innerHTML = `
+            <div class="task-header">
+                <strong>${task.title}</strong>
+                <span>${task.is_done ? "✅" : "⏳"}</span>
+            </div>
+
+            <div>⏱ ${task.total_minutes} хв</div>
+
+            <div class="progress">
+                <div class="progress-bar" style="width:${percent}%"></div>
+            </div>
+
+            <div class="steps">
+                ${task.steps.map((s, i) => `
+                    <div class="step">
+                        ${i + 1}. ${s.title} (${s.minutes} хв)
+                    </div>
+                `).join("")}
+
+                ${!task.is_done ? `
+                <button onclick="markDone(${task.id})">
+                    ✅ Виконано
+                </button>` : ""}
+            </div>
+        `;
+
+        div.onclick = () => {
+            const steps = div.querySelector(".steps");
+            steps.style.display =
+                steps.style.display === "block" ? "none" : "block";
+        };
+
+        container.appendChild(div);
+    });
+}
+
+async function markDone(taskId) {
+    await fetch(`/done/${taskId}`, { method: "POST" });
+    loadTasks();
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>

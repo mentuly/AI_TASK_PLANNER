@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Налаштування — AI Task Planner{% endblock %}
+
+{% block content %}
+<section class="hero-panel settings-panel">
+    <div class="card-yellow">
+        <h2 class="text-accent">Налаштування профілю</h2>
+        <label for="profileNameInput">Ім'я</label>
+        <input id="profileNameInput" type="text" placeholder="Введіть своє ім'я">
+
+        <label for="avatarUrlInput">URL аватарки</label>
+        <input id="avatarUrlInput" type="url" placeholder="https://...">
+
+        <div class="step-actions">
+            <button class="button button-primary" type="button" onclick="saveProfile()">Зберегти</button>
+            <span id="saveNotification"></span>
+        </div>
+
+        <p class="small-text">Ці налаштування зберігаються локально у браузері. Вони роблять дашборд більш персоналізованим.</p>
+    </div>
+
+    <div class="card-yellow">
+        <h2 class="text-accent">Оформлення сайту</h2>
+        <p class="small-text">Сайт оформлено як важлива продуктова панель з комфортним темним фоном і акцентами.</p>
+        <p class="small-text">Поки що дані профілю не зберігаються на сервері — лише у вашому браузері.</p>
+    </div>
+</section>
+{% endblock %}

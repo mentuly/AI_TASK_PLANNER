@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Авторизація — AI Task Planner{% endblock %}
+
+{% block content %}
+<div class="hero-panel">
+    <div class="hero-copy">
+        <span class="eyebrow">Авторизація</span>
+        <h1>Увійти можна лише через Telegram</h1>
+        <p>Щоб пройти авторизацію, відкрий наш бот у Telegram і надішли команду <code>/site</code>. Потім натисни посилання, яке отримаєш у чаті.</p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="https://t.me/AI_task_planer_bot" target="_blank">Відкрити бота</a>
+            <a class="button button-secondary" href="/">До головної</a>
+        </div>
+        {% if user_id %}
+        <div class="alert" style="margin-top:24px;">
+            Ви вже увійшли. <a href="/dashboard">Перейти в дашборд</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

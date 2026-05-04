@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд — Task Planner{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+    <div class="profile-panel">
+        <div id="profileAvatar" class="profile-avatar"></div>
+        <div class="profile-info">
+            <h2 id="profileName">Користувач</h2>
+            <p>Твій персональний центр задач у стилі важливого продукту.</p>
+            <p class="small-text">ID авторизації: <strong>{{ user_id }}</strong></p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <small>Загальні задачі</small>
+            <strong id="summaryTotal">{{ summaryTotal }}</strong>
+        </div>
+        <div class="stat-card">
+            <small>В роботі</small>
+            <strong id="summaryPending">{{ summaryPending }}</strong>
+        </div>
+        <div class="stat-card">
+            <small>Виконано</small>
+            <strong id="summaryDone">{{ summaryDone }}</strong>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-controls">
+    <div class="filter-controls">
+        <button class="filter-pill active" data-filter="all" type="button">Всі</button>
+        <button class="filter-pill" data-filter="active" type="button">В роботі</button>
+        <button class="filter-pill" data-filter="done" type="button">Завершені</button>
+    </div>
+    <div class="page-actions">
+        <button class="button button-secondary refresh-button" type="button" onclick="refreshDashboard()">Оновити</button>
+        <a class="button button-primary" href="https://t.me/AI_task_planer_bot" target="_blank">Взаємодія з ботом</a>
+    </div>
+</section>
+
+<section class="dashboard-grid">
+    <div class="task-list-panel">
+        <div class="table-wrapper">
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Завдання</th>
+                        <th>Статус</th>
+                        <th>Час</th>
+                        <th>Кроки</th>
+                    </tr>
+                </thead>
+                <tbody id="taskTableBody">
+                    <tr class="table-fallback">
+                        <td colspan="4">Завантажується список задач...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="table-note small-text">Натисніть або наведіть на рядок, щоб побачити деталі справа.</div>
+    </div>
+
+    <aside class="task-details-panel" id="taskDetails">
+        <div class="details-placeholder">
+            <h3>Оберіть задачу</h3>
+            <p>Деталі вибраної задачі з’являться в цій панелі після наведення або кліку.</p>
+        </div>
+    </aside>
+</section>
+{% endblock %}

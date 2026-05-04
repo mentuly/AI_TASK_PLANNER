@@ -2,7 +2,6 @@
 /.env
 /.venv
 /me_bot.txt
-/tree.txt
 __pycache__/
 *.db
 

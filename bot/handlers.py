@@ -7,9 +7,10 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReactionTy
 from aiogram.fsm.context import FSMContext
 
 from core.repository import *
-from ai.generate import generate_plan
+from bot.ai.generate import generate_plan
 from bot.states import PlanState
 from core.users import register_user
+from core.auth import create_auth_token
 
 dp = Dispatcher()
 
@@ -23,6 +24,18 @@ async def send_typing(bot, chat_id: int):
             await asyncio.sleep(4)
     except asyncio.CancelledError:
         pass
+
+@dp.message(Command("site"))
+async def open_site(message: types.Message):
+    token = await create_auth_token(message.from_user.id)
+
+    url = f"http://127.0.0.1:8000/auth/{token}"
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🌐 Відкрити сайт", url=url)]
+    ])
+
+    await message.answer("Твій доступ до сайту 👇", reply_markup=keyboard)
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
