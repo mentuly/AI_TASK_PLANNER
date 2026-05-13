@@ -48,35 +48,52 @@ The system operates in parallel with a Telegram bot for quick task input and a w
 
 ## 📁 Project Structure
 
-\`\`\`
+```text
 AI_TASK_PLANNER/
-├── main.py                 # Application entry point
-├── Tech_stack.txt          # Stack information
-├── .gitignore              # Git ignore configuration
 │
-├── bot/                    # Telegram bot module
-│   ├── handlers.py         # Message and command handlers
-│   ├── keyboards.py        # Keyboard layouts
-│   └── ...                 # Other bot-related files
+├── main.py
+├── Tech_stack.txt
+├── .gitignore
 │
-├── core/                   # Core business logic
-│   ├── models.py           # Database models
-│   ├── repository.py       # Data access layer
-│   ├── auth.py             # Authentication logic
-│   └── ...                 # Other core modules
+├── bot/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── handlers.py
+│   ├── states.py
+│   │
+│   └── ai/
+│       ├── __init__.py
+│       └── generate.py
 │
-└── site_F/                 # FastAPI web application
-    ├── main.py             # FastAPI app and routes
-    ├── templates/          # HTML templates (Jinja2)
+├── core/
+│   ├── __init__.py
+│   ├── db.py
+│   ├── models.py
+│   ├── repository.py
+│   ├── auth.py
+│   └── users.py
+│
+└── site_F/
+    ├── __init__.py
+    ├── main.py
+    │
+    ├── templates/
+    │   ├── base.html
     │   ├── home.html
     │   ├── login.html
     │   ├── dashboard.html
-    │   └── settings.html
-    └── static/             # CSS, JavaScript, images
+    │   ├── settings.html
+    │   └── index.html
+    │
+    └── static/
         ├── css/
-        ├── js/
-        └── images/
-\`\`\`
+        │   └── style.css
+        │
+        └── js/
+            ├── app.js
+            └── style.js
+```
+
 
 ---
 
@@ -139,6 +156,10 @@ OPENAI_API_KEY=your_openai_api_key
 
 # or
 CLAUDE_API_KEY=your_claude_api_key
+
+# Bot_id:
+
+@AI_task_planer_bot
 
 # Database
 DATABASE_URL=sqlite:///./tasks.db

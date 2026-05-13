@@ -1,0 +1,43 @@
+AI_TASK_PLANNER/
+│
+├── main.py
+├── Tech_stack.txt
+├── .gitignore
+│
+├── bot/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── handlers.py
+│   ├── states.py
+│   │
+│   └── ai/
+│       ├── __init__.py
+│       └── generate.py
+│
+├── core/
+│   ├── __init__.py
+│   ├── db.py
+│   ├── models.py
+│   ├── repository.py
+│   ├── auth.py
+│   └── users.py
+│
+└── site_F/
+    ├── __init__.py
+    ├── main.py
+    │
+    ├── templates/
+    │   ├── base.html
+    │   ├── home.html
+    │   ├── login.html
+    │   ├── dashboard.html
+    │   ├── settings.html
+    │   └── index.html
+    │
+    └── static/
+        ├── css/
+        │   └── style.css
+        │
+        └── js/
+            ├── app.js
+            └── style.js
