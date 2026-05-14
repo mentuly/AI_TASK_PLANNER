@@ -18,13 +18,24 @@ async def create_auth_token(user_id: int):
 
 async def get_user_by_token(token: str):
     db = await get_db()
-
+    
+    # user_id
     cursor = await db.execute(
         "SELECT user_id FROM auth_tokens WHERE token=?",
         (token,)
     )
-
     row = await cursor.fetchone()
+    
+    if row:
+        user_id = row[0]
+        # видалення токену після використання
+        await db.execute(
+            "DELETE FROM auth_tokens WHERE token=?",
+            (token,)
+        )
+        await db.commit()
+        await db.close()
+        return user_id
+    
     await db.close()
-
-    return row[0] if row else None
+    return None

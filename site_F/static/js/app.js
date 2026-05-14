@@ -89,6 +89,7 @@ function setTaskDetails(task) {
             </div>
             <div class="details-actions">
                 ${task.is_done ? "" : `<button class='button button-primary' onclick='markDone(${task.id})'>Відмітити як виконане</button>`}
+                <button class='button button-secondary' onclick='deleteTask(${task.id})'>🗑 Видалити</button>
                 <button class='button button-secondary' onclick='refreshDashboard()'>Оновити</button>
             </div>
         </div>
@@ -238,6 +239,22 @@ function initPage() {
     }
     if (page === "settings") {
         loadSettings();
+    }
+}
+
+async function deleteTask(taskId) {
+    if (!confirm("❌ Ви впевнені, що хочете видалити цю задачу?")) {
+        return;
+    }
+    
+    const response = await fetch(`/delete/${taskId}`, { method: "DELETE" });
+    
+    if (response.ok) {
+        alert("✅ Задача видалена!");
+        await loadTasks();
+    } else {
+        const error = await response.json();
+        alert(`❌ Помилка: ${error.detail}`);
     }
 }
 

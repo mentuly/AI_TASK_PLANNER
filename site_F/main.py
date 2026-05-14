@@ -3,13 +3,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from core.repository import get_tasks, get_steps, mark_done
+from core.repository import delete_task, get_tasks, get_steps, get_tasks_with_steps, mark_done, get_task_owner
 from core.auth import get_user_by_token
 
 app = FastAPI()
-
-# 🔥 підключаємо templates
-
 
 templates = Jinja2Templates(directory="site_F/templates")
 app.mount("/static", StaticFiles(directory="site_F/static"), name="static")
@@ -91,45 +88,29 @@ async def settings(request: Request):
 @app.get("/tasks")
 async def api_tasks(request: Request):
     user_id = request.cookies.get("user_id")
-
+    
     if not user_id:
         raise HTTPException(status_code=401, detail="Not authorized")
-
-    tasks = await get_tasks(int(user_id))
-
-    result = []
-
-    for task_id, title, is_done in tasks:
-        steps = await get_steps(task_id)
-
-        total_minutes = 0
-
-        steps_data = []
-        for s in steps:
-            step_title, step_description, step_minutes = s
-
-            total_minutes += step_minutes
-
-            steps_data.append({
-                "title": step_title,
-                "description": step_description,
-                "minutes": step_minutes,
-                "is_done": False  # поки що
-            })
-
-        result.append({
-            "id": task_id,
-            "title": title,
-            "is_done": is_done,
-            "total_minutes": total_minutes,
-            "steps": steps_data
-        })
-
+    
+    # один запит
+    result = await get_tasks_with_steps(int(user_id))
+    
     return result
 
 
 @app.post("/done/{task_id}")
-async def done(task_id: int):
+async def done(task_id: int, request: Request):
+    user_id = request.cookies.get("user_id")
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    # перевірка чи таск належить юзеру
+    task_owner = await get_task_owner(int(task_id))
+    
+    if task_owner != int(user_id):
+        raise HTTPException(status_code=403, detail="Forbidden: Task does not belong to this user")
+    
     await mark_done(task_id)
     return {"status": "ok"}
 
@@ -151,3 +132,19 @@ async def auth(token: str):
     )
 
     return response
+
+@app.delete("/delete/{task_id}")
+async def delete_task_endpoint(task_id: int, request: Request):
+    user_id = request.cookies.get("user_id")
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    # перевіряємо чи таск належить юзеру
+    task_owner = await get_task_owner(task_id)
+    
+    if task_owner != int(user_id):
+        raise HTTPException(status_code=403, detail="Forbidden: Task does not belong to this user")
+    
+    await delete_task(task_id)
+    return {"status": "ok"}

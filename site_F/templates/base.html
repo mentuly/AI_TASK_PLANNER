@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Task Planner{% endblock %}</title>
+    <link rel="icon" href="/static/image/image.png" type="image/png">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/footer.css">
 </head>
 <body data-page="{{ page }}">
 <header class="site-header">
-    <div>
-        <a class="brand-link" href="/">Task Planner</a>
-        <span class="brand-subtitle">Плануй сьогодні — досягай завтра</span>
+    <div class="brand-container" style="display: flex; align-items: center; gap: 12px;">
+        <img src="/static/image/image.png" alt="Logo" class="brand-logo" width="70" height="70">
+        <div>
+            <a class="brand-link" href="/" style="display: block; font-weight: bold;">Task Planner</a>
+            <span class="brand-subtitle" style="display: block; font-size: 12px; color: #666;">Плануй сьогодні — досягай завтра</span>
+        </div>
     </div>
     <nav class="site-nav">
         <a class="button button-secondary"  href="/">Головна</a>
@@ -22,8 +27,50 @@
     {% block content %}{% endblock %}
 </main>
 <footer class="site-footer">
-    <span><b>AI Task Planner</b></span>
+    <div class="footer-container">
+        
+        <!-- Блок 1: Про проєкт -->
+        <div class="footer-section footer-about">
+            <h4 class="footer-title">AI Task Planner</h4>
+            <p class="footer-text">
+                Розумний помічник для автоматизації ваших завдань. Плануйте день за допомогою штучного інтелекту та Telegram-бота.
+            </p>
+        </div>
+
+        <!-- Блок 2: Навігація -->
+        <div class="footer-section footer-nav">
+            <h4 class="footer-title">Навігація</h4>
+            <ul class="footer-links">
+                <li><a href="/">Головна</a></li>
+                <li><a href="/dashboard">Дашборд</a></li>
+                <li><a href="/settings">Налаштування</a></li>
+            </ul>
+        </div>
+
+        <!-- Блок 3: Контакти та Бот -->
+        <div class="footer-section footer-contacts">
+            <h4 class="footer-title">Зв'язок та бот</h4>
+            <ul class="footer-links">
+                <li><a href="#" target="_blank" class="bot-link">🤖 Відкрити Telegram-бота</a></li>
+                <li><a href="/support">Підтримка користувачів</a></li>
+                <li><span class="email-text">danlutsencko@gmail.com</span></li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Нижня лінія з копірайтом -->
+    <div class="footer-bottom">
+        <div class="copyright">
+            &copy; 2026 AI Task Planner. Усі права захищені.
+        </div>
+        <div class="footer-legal">
+            <a href="/privacy">Політика конфиденційності</a>
+            <a href="/terms">Умови використання</a>
+        </div>
+    </div>
 </footer>
+
 <script src="/static/js/app.js"></script>
 </body>
 </html>

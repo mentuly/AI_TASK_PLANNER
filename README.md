@@ -88,7 +88,8 @@ AI_TASK_PLANNER/
     └── static/
         ├── css/
         │   └── style.css
-        │
+        ├── image/
+        │   └── image.png
         └── js/
             ├── app.js
             └── style.js
@@ -113,14 +114,14 @@ Before you begin, ensure you have:
 
 ### 1. Clone the Repository
 
-\`\`\`bash
+```bash
 git clone https://github.com/mentuly/AI_TASK_PLANNER.git
 cd AI_TASK_PLANNER
-\`\`\`
+```
 
 ### 2. Create a Virtual Environment
 
-\`\`\`bash
+```bash
 python -m venv venv
 
 # On Windows
@@ -128,13 +129,13 @@ venv\Scripts\activate
 
 # On macOS/Linux
 source venv/bin/activate
-\`\`\`
+```
 
 ### 3. Install Dependencies
 
-\`\`\`bash
+```bash
 pip install -r requirements.txt
-\`\`\`
+```
 
 ---
 
@@ -144,7 +145,7 @@ pip install -r requirements.txt
 
 Create a \`.env\` file in the root directory:
 
-\`\`\`env
+```env
 # Telegram Bot
 BOT_TOKEN=your_telegram_bot_token_here
 
@@ -167,7 +168,7 @@ DATABASE_URL=sqlite:///./tasks.db
 # Web Server
 API_HOST=127.0.0.1
 API_PORT=8000
-\`\`\`
+```
 
 ### 2. Database Setup
 
@@ -179,9 +180,9 @@ The database is initialized automatically when the application starts. The \`ini
 
 ### Start the Application
 
-\`\`\`bash
+```bash
 python main.py
-\`\`\`
+```
 
 This will:
 1. Initialize the database
@@ -200,31 +201,31 @@ This will:
 ### Main Endpoints
 
 #### Home Page
-\`\`\`http
+```http
 GET /
-\`\`\`
+```
 Returns the home page.
 
 #### Login
-\`\`\`http
+```http
 GET /login
-\`\`\`
+```
 Displays the login page.
 
 #### Dashboard
-\`\`\`http
+```http
 GET /dashboard
-\`\`\`
+```
 Displays the user's tasks dashboard (requires authentication).
 
 #### Get Tasks (API)
-\`\`\`http
+```http
 GET /tasks
-\`\`\`
+```
 Returns JSON list of user's tasks with steps and time estimates.
 
 **Response:**
-\`\`\`json
+```json
 [
   {
     "id": 1,
@@ -241,18 +242,18 @@ Returns JSON list of user's tasks with steps and time estimates.
     ]
   }
 ]
-\`\`\`
+```
 
 #### Mark Task as Done
-\`\`\`http
+```http
 POST /done/{task_id}
-\`\`\`
+```
 Marks a task as completed.
 
 #### Authentication
-\`\`\`http
+```http
 GET /auth/{token}
-\`\`\`
+```
 Authenticates user with token and sets session cookie.
 
 ---
