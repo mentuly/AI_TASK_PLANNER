@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from core.repository import delete_task, get_tasks, get_steps, get_tasks_with_steps, mark_done, get_task_owner
+from core.repository import delete_task, get_tasks_with_steps, mark_done, get_task_owner
 from core.auth import get_user_by_token
 
 app = FastAPI()
@@ -34,28 +34,7 @@ async def dashboard(request: Request):
     if not user_id:
         return RedirectResponse("/login")
 
-    tasks = await get_tasks(int(user_id))
-    task_list = []
-    for task_id, title, is_done in tasks:
-        steps = await get_steps(task_id)
-        total_minutes = 0
-        steps_data = []
-        for step_title, step_description, step_minutes in steps:
-            total_minutes += step_minutes
-            steps_data.append({
-                "title": step_title,
-                "description": step_description,
-                "minutes": step_minutes,
-                "is_done": False
-            })
-
-        task_list.append({
-            "id": task_id,
-            "title": title,
-            "is_done": is_done,
-            "total_minutes": total_minutes,
-            "steps": steps_data
-        })
+    task_list = await get_tasks_with_steps(int(user_id))
 
     return templates.TemplateResponse(
         request,

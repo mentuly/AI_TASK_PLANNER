@@ -124,16 +124,6 @@ async def get_task_id_by_user_and_index(user_id: int, index: int):
     
     return row[0] if row else None
 
-async def get_task_owner(task_id: int):
-    db = await get_db()
-    cursor = await db.execute(
-        "SELECT user_id FROM tasks WHERE id=?",
-        (task_id,)
-    )
-    row = await cursor.fetchone()
-    await db.close()
-    return row[0] if row else None
-
 async def get_tasks_with_steps(user_id):
     """Отримуємо всі таски з кроками одним запитом (JOIN)"""
     db = await get_db()

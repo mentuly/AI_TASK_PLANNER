@@ -6,3 +6,11 @@ __pycache__/
 *.db
 
 /materials
+
+# Docker
+.dockerignore
+docker-compose.yml
+
+# Local runtime files
+data/
+.secrets/

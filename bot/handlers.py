@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReactionTypeEmoji
 from aiogram.fsm.context import FSMContext
 
-from core.repository import create_task, get_tasks, get_task_id_by_user_and_index, get_task_by_id, mark_done, delete_task
+from core.repository import create_task, get_tasks, get_task_id_by_user_and_index, get_task_by_id, get_task_owner, mark_done, delete_task
 from bot.ai.generate import generate_plan
 from bot.states import PlanState
 from core.users import register_user
@@ -185,8 +185,12 @@ async def open_task(callback: types.CallbackQuery):
 @dp.callback_query(F.data.startswith("done:"))
 async def done_callback(callback: types.CallbackQuery):
     task_id = int(callback.data.split(":")[1])
-    
-    # чи таск належить юзеру
+
+    owner_id = await get_task_owner(task_id)
+    if owner_id != callback.from_user.id:
+        await callback.answer("❌ Це не твоя задача", show_alert=True)
+        return
+
     task = await get_task_by_id(task_id)
     
     if not task or task["id"] != task_id:  # додаткова перевірка
@@ -204,7 +208,12 @@ async def done_callback(callback: types.CallbackQuery):
 @dp.callback_query(F.data.startswith("delete:"))
 async def delete_callback(callback: types.CallbackQuery):
     task_id = int(callback.data.split(":")[1])
-    
+
+    owner_id = await get_task_owner(task_id)
+    if owner_id != callback.from_user.id:
+        await callback.answer("❌ Це не твоя задача", show_alert=True)
+        return
+
     # перевіряємо існування
     task = await get_task_by_id(task_id)
     
