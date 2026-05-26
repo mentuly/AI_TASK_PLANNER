@@ -182,6 +182,29 @@ docker compose up --build
 
 ---
 
+## Testing
+
+Install development test dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run the full test suite with coverage:
+
+```bash
+pytest -q
+```
+
+The repository includes tests for:
+- FastAPI endpoints
+- Telegram bot handlers
+- database repository logic
+- authentication token flow
+- AI plan generation parsing
+
+---
+
 ## Access
 
 - Web interface: http://localhost:8000
