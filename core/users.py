@@ -1,20 +1,25 @@
-import aiosqlite
-from .db import DB_NAME
+﻿from sqlalchemy import select, insert
+from core.db import get_db
+from core.db_models.users import users
 
 
 async def register_user(telegram_id: int, username: str):
-    async with aiosqlite.connect(DB_NAME) as db:
-        await db.execute("""
-            INSERT OR IGNORE INTO users (telegram_id, username)
-            VALUES (?, ?)
-        """, (telegram_id, username))
-        await db.commit()
+    async with get_db() as conn:
+        result = await conn.execute(
+            select(users.c.id).where(users.c.telegram_id == telegram_id)
+        )
+        if result.scalar_one_or_none() is None:
+            await conn.execute(
+                insert(users).values(telegram_id=telegram_id, username=username)
+            )
+            await conn.commit()
 
 
 async def get_user_by_username(username: str):
-    async with aiosqlite.connect(DB_NAME) as db:
-        cursor = await db.execute(
-            "SELECT id, telegram_id FROM users WHERE username=?",
-            (username,)
+    async with get_db() as conn:
+        result = await conn.execute(
+            select(users.c.id, users.c.telegram_id).where(users.c.username == username)
         )
-        return await cursor.fetchone()
+        row = result.fetchone()
+
+    return tuple(row) if row else None

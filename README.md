@@ -22,6 +22,8 @@ Both services use a shared SQLite database and are ready for local execution or 
 - Web dashboard for task tracking
 - Token-based authentication for web access
 - SQLite storage for persistent data
+- Optional PostgreSQL/MySQL support via DATABASE_URL
+- Alembic migrations for schema management
 - Docker-ready configuration with Dockerfile and docker-compose.yml
 - Docker secrets support for BOT_TOKEN
 
@@ -130,8 +132,18 @@ BOT_TOKEN=your_telegram_bot_token_here
 OPENAI_API_KEY=your_openai_api_key
 # or
 # CLAUDE_API_KEY=your_claude_api_key
+DATABASE_URL=sqlite+aiosqlite:///tasks.db
 DB_NAME=tasks.db
 ```
+
+### Database migrations
+Use Alembic to manage schema changes and support PostgreSQL/MySQL.
+
+```bash
+alembic upgrade head
+```
+
+If you want to use a server database, set `DATABASE_URL` to your Postgres or MySQL URI before running migrations.
 
 ### Docker secrets
 

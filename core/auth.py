@@ -1,41 +1,31 @@
 import secrets
+from sqlalchemy import select, insert, delete
 from core.db import get_db
+from core.db_models.auth_tokens import auth_tokens
 
 
 async def create_auth_token(user_id: int):
     token = secrets.token_urlsafe(32)
 
-    db = await get_db()
-    await db.execute(
-        "INSERT INTO auth_tokens (token, user_id) VALUES (?, ?)",
-        (token, user_id)
-    )
-    await db.commit()
-    await db.close()
+    async with get_db() as conn:
+        await conn.execute(
+            insert(auth_tokens).values(token=token, user_id=user_id)
+        )
+        await conn.commit()
 
     return token
 
 
 async def get_user_by_token(token: str):
-    db = await get_db()
-    
-    # user_id
-    cursor = await db.execute(
-        "SELECT user_id FROM auth_tokens WHERE token=?",
-        (token,)
-    )
-    row = await cursor.fetchone()
-    
-    if row:
-        user_id = row[0]
-        # видалення токену після використання
-        await db.execute(
-            "DELETE FROM auth_tokens WHERE token=?",
-            (token,)
+    async with get_db() as conn:
+        result = await conn.execute(
+            select(auth_tokens.c.user_id).where(auth_tokens.c.token == token)
         )
-        await db.commit()
-        await db.close()
-        return user_id
-    
-    await db.close()
+        row = result.fetchone()
+        if row:
+            user_id = row[0]
+            await conn.execute(delete(auth_tokens).where(auth_tokens.c.token == token))
+            await conn.commit()
+            return user_id
+
     return None

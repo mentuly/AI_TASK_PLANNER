@@ -1,42 +1,13 @@
-from core.db import get_db
+﻿from core.db import get_engine
+from core.db_models.metadata import metadata
+
+from core.db_models.users import users
+from core.db_models.auth_tokens import auth_tokens
+from core.db_models.tasks import tasks
+from core.db_models.steps import steps
+
 
 async def init_db():
-    db = await get_db()
-
-    await db.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        telegram_id INTEGER UNIQUE,
-        username TEXT
-    )
-    """)
-
-    await db.execute("""
-    CREATE TABLE IF NOT EXISTS auth_tokens (
-        token TEXT PRIMARY KEY,
-        user_id INTEGER
-    )
-    """)
-
-    await db.execute("""
-    CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        title TEXT,
-        is_done INTEGER DEFAULT 0
-    )
-    """)
-
-    await db.execute("""
-    CREATE TABLE IF NOT EXISTS steps (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        task_id INTEGER,
-        title TEXT,
-        description TEXT,
-        minutes INTEGER,
-        is_done INTEGER DEFAULT 0
-    )
-    """)
-
-    await db.commit()
-    await db.close()
+    engine = get_engine()
+    async with engine.begin() as connection:
+        await connection.run_sync(metadata.create_all)
